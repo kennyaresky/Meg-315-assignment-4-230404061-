@@ -3,7 +3,7 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background: #f0f4f8;
+    background: black;
 }
 
 .container {
@@ -19,7 +19,7 @@ h1, h2 {
 /* Inputs */
 .input-section {
     background: #ffffff;
-    padding: 20px;
+    background:30px;
     border-radius: 10px;
     margin-bottom: 20px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -44,7 +44,7 @@ input[type="number"] {
 }
 
 button {
-    padding: 10px;
+    padding: 15px;
     width: 100%;
     border: none;
     background-color: #007bff;
