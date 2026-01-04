@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Rankine Cycle Visualizer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="container">
+    <h1>Rankine Cycle Visualizer</h1>
+
+    <div class="input-section">
+        <h2>User Inputs</h2>
+        <div class="form-group">
+            <label>Boiler Pressure (bar):</label>
+            <input type="number" id="P_boiler" value="80">
+        </div>
+        <div class="form-group">
+            <label>Condenser Pressure (bar):</label>
+            <input type="number" id="P_condenser" value="0.08">
+        </div>
+        <div class="form-group">
+            <label>Turbine Inlet Temp (°C):</label>
+            <input type="number" id="T_turbine_inlet" value="500">
+        </div>
+        <div class="form-group">
+            <label>Pump Efficiency:</label>
+            <input type="number" step="0.01" id="pump_efficiency" value="0.85">
+        </div>
+        <div class="form-group">
+            <label>Turbine Efficiency:</label>
+            <input type="number" step="0.01" id="turbine_efficiency" value="0.85">
+        </div>
+        <button onclick="calculateCycle()">Calculate</button>
+    </div>
+
+    <div class="results-section">
+        <h2>States</h2>
+        <div class="table-container">
+            <table id="statesTable">
+                <thead>
+                    <tr>
+                        <th>Point</th><th>T (K)</th><th>P (Pa)</th><th>h (J/kg)</th><th>s (J/kg·K)</th><th>v (m³/kg)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <h2>T-s Diagram</h2>
+        <div id="ts_chart" class="chart"></div>
+
+        <h2>P-v Diagram</h2>
+        <div id="pv_chart" class="chart"></div>
+    </div>
+</div>
+
+<script src="/static/script.js"></script>
+<script>
+async function calculateCycle() {
+    const P_boiler = parseFloat(document.getElementById("P_boiler").value);
+    const P_condenser = parseFloat(document.getElementById("P_condenser").value);
+    const T_turbine_inlet = parseFloat(document.getElementById("T_turbine_inlet").value);
+    const pump_efficiency = parseFloat(document.getElementById("pump_efficiency").value);
+    const turbine_efficiency = parseFloat(document.getElementById("turbine_efficiency").value);
+
+    const data = { P_boiler, P_condenser, T_turbine_inlet, pump_efficiency, turbine_efficiency };
+    const response = await fetch("/calculate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+
+    // Update table
+    const tbody = document.querySelector("#statesTable tbody");
+    tbody.innerHTML = "";
+    result.states.forEach(s => {
+        const row = `<tr>
+            <td>${s.point}</td>
+            <td>${s.T}</td>
+            <td>${s.P}</td>
+            <td>${s.h}</td>
+            <td>${s.s}</td>
+            <td>${s.v}</td>
+        </tr>`;
+        tbody.innerHTML += row;
+    });
+
+    // Render T-s chart
+    Plotly.newPlot("ts_chart", [{
+        x: result.states.map(s => s.s),
+        y: result.states.map(s => s.T),
+        mode: 'lines+markers+text',
+        text: result.states.map(s => 'P'+s.point),
+        textposition: 'top center',
+        type: 'scatter'
+    }], {title: "T-s Diagram", xaxis: {title: "Entropy (J/kg·K)"}, yaxis: {title: "Temperature (K)"}, responsive: true});
+
+    // Render P-v chart
+    Plotly.newPlot("pv_chart", [{
+        x: result.states.map(s => s.v),
+        y: result.states.map(s => s.P),
+        mode: 'lines+markers+text',
+        text: result.states.map(s => 'P'+s.point),
+        textposition: 'top center',
+        type: 'scatter'
+    }], {title: "P-v Diagram", xaxis: {title: "Specific Volume (m³/kg)"}, yaxis: {title: "Pressure (Pa)"}, responsive: true});
+}
+</script>
+</body>
+</html>
