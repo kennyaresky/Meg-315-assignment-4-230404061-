@@ -56,23 +56,6 @@ The project visualizes these processes on:
 
 ## 🏗️ Project Architecture
 
-```
-rankine-cycle-app/
-│
-├── main.py                  # FastAPI backend (API + thermodynamics logic)
-│
-├── templates/
-│   └── index.html            # Frontend UI (HTML + Jinja2)
-│
-├── static/
-│   ├── style.css             # CSS styling (can be customized)
-│   └── script.js             # JavaScript for API calls & charts
-│
-├── README.md                 # Project documentation
-│
-└── requirements.txt          # Python dependencies
-
-```
 
 ⚙️ Technologies Used
 
